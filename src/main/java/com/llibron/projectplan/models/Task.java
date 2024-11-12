@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Entity
-public class Project {
+public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -15,8 +15,10 @@ public class Project {
 
     private String name;
 
+    private int duration;
+
     @OneToMany
-    private List<Task> tasks;
+    private List<Task> dependencies;
 
     private LocalDate startDate;
 
