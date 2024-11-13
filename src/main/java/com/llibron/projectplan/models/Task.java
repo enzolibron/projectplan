@@ -18,6 +18,7 @@ public class Task {
     private int duration;
 
     @OneToMany
+    @JoinColumn(name = "dependencies")
     private List<Task> dependencies;
 
     private Long projectId;

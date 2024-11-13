@@ -39,16 +39,21 @@ public class ProjectInteractorImpl implements ProjectInteractor{
         newTask.setName(request.getName());
         newTask.setDependencies(dependencies);
 
-        Task savedTask = taskService.save(newTask);
-
         if (project != null) {
+
+            newTask.setProjectId(projectId);
+            Task savedTask = taskService.save(newTask);
+
             List<Task> projectTasks = project.getTasks();
             projectTasks.add(savedTask);
             project.setTasks(projectTasks);
-            Project savedProject = projectService.save(project);
-            newTask.setProjectId(savedProject.getId());
+
+            projectService.save(project);
+
+            return savedTask;
         }
-        return savedTask;
+
+        return taskService.save(newTask);
 
     }
 }
