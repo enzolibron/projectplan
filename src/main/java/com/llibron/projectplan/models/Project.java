@@ -16,6 +16,7 @@ public class Project {
     private String name;
 
     @OneToMany
+    @JoinColumn(name = "tasks")
     private List<Task> tasks;
 
     private LocalDate startDate;

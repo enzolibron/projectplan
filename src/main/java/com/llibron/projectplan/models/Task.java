@@ -20,6 +20,8 @@ public class Task {
     @OneToMany
     private List<Task> dependencies;
 
+    private Long projectId;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
