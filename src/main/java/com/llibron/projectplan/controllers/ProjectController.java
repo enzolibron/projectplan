@@ -34,7 +34,7 @@ public class ProjectController {
 
         ProjectEntityDto project = projectService.findById(id);
 
-        if(project == null) {
+        if (project == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(project, HttpStatus.OK);
@@ -65,11 +65,18 @@ public class ProjectController {
 
         ProjectEntityDto taskEntityDto = projectService.createTaskInsideProject(request, projectId);
 
-        if(taskEntityDto == null) {
+        if (taskEntityDto == null) {
             return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
         } else {
             return new ResponseEntity<>(taskEntityDto, HttpStatus.CREATED);
         }
+
+    }
+
+    @PutMapping(value = "/{projectId}/tasks/{taskId}")
+    public ResponseEntity updateTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+
+        return null;
 
     }
 }

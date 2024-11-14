@@ -15,7 +15,7 @@ public class Project {
 
     private String name;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany
     private List<Task> tasks;
 
     private LocalDate startDate;

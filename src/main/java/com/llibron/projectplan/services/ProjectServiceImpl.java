@@ -7,9 +7,12 @@ import com.llibron.projectplan.models.Task;
 import com.llibron.projectplan.repositories.ProjectRepository;
 import com.llibron.projectplan.repositories.TaskRepository;
 import com.llibron.projectplan.utilities.mapper.ProjectMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,7 +31,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Project save(Project project) {
-        project.setTasks(new ArrayList<>());
         return projectRepository.save(project);
     }
 
@@ -52,6 +54,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public ProjectEntityDto createTaskInsideProject(NewTaskRequest request, Long projectId) {
         //update project tasks
@@ -78,7 +81,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectTasks.add(taskRepository.save(newTask));
             project.get().setTasks(projectTasks);
 
-            Project savedProject = projectRepository.save(project.get());
+            Project savedProject = projectRepository.save(processProjectTasksSchedule(project.get()));
             return ProjectMapper.INSTANCE.projectToProjectEntityDto(savedProject);
 
         } else {
@@ -86,4 +89,57 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
     }
+
+    public Project processProjectTasksSchedule(Project project) {
+
+        if (project.getTasks().isEmpty()) {
+            return project;
+        }
+        LocalDate startDate = project.getStartDate();
+
+        List<Long> uncompletedTaskIds = project.getTasks().stream().map(Task::getId).collect(Collectors.toList());
+        List<Task> processedTasks = new ArrayList<>();
+
+        //process all task w/o dependency
+        List<Task> projectTasksWithoutDependency = project.getTasks().stream().filter(task -> task.getDependencies().isEmpty()).toList();
+        for (Task task : projectTasksWithoutDependency) {
+
+            startDate = setDate(project, startDate, uncompletedTaskIds, processedTasks, task);
+        }
+
+        //process all task w/dependency
+        List<Task> projectTasksWithDependency = project.getTasks().stream().filter(task -> !task.getDependencies().isEmpty()).toList();
+        while (!uncompletedTaskIds.isEmpty()) {
+            for (Task task : projectTasksWithDependency) {
+                List<Long> processedTaskIds = project.getTasks().stream().map(Task::getId).toList();
+                if (new HashSet<>(processedTaskIds).containsAll(task.getDependencies())) {
+
+                    startDate = setDate(project, startDate, uncompletedTaskIds, processedTasks, task);
+
+                }
+
+            }
+        }
+
+        project.setTasks(processedTasks);
+
+
+        return project;
+    }
+
+    private LocalDate setDate(Project project, LocalDate startDate, List<Long> uncompletedTaskIds, List<Task> processedTasks, Task task) {
+        task.setStartDate(startDate);
+        task.setEndDate(startDate.plusDays(task.getDuration() - 1));
+
+        project.setEndDate(task.getEndDate());
+
+        startDate = startDate.plusDays(task.getDuration());
+
+        processedTasks.add(task);
+
+        uncompletedTaskIds.removeIf(taskId -> taskId.equals(task.getId()));
+        return startDate;
+    }
+
+
 }
