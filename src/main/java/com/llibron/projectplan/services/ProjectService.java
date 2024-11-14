@@ -1,6 +1,7 @@
 package com.llibron.projectplan.services;
 
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
+import com.llibron.projectplan.dtos.requests.NewTaskRequest;
 import com.llibron.projectplan.models.Project;
 
 import java.util.List;
@@ -14,5 +15,7 @@ public interface ProjectService {
     ProjectEntityDto findById(Long id);
 
     void delete(Long id);
+
+    ProjectEntityDto createTaskInsideProject(NewTaskRequest request, Long projectId);
 
 }

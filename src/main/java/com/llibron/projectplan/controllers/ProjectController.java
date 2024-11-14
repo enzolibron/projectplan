@@ -1,13 +1,13 @@
 package com.llibron.projectplan.controllers;
 
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
-import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewProjectRequest;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.services.ProjectService;
-import com.llibron.projectplan.services.TaskService;
 import com.llibron.projectplan.utilities.mapper.ProjectMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +17,9 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
-    private final TaskService taskService;
 
-    public ProjectController(ProjectService projectService, TaskService taskService) {
+    public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
-        this.taskService = taskService;
     }
 
     @GetMapping
@@ -32,9 +30,15 @@ public class ProjectController {
     }
 
     @GetMapping(value = "/{id}")
-    public ProjectEntityDto getAllProjects(@PathVariable("id") Long id) {
+    public ResponseEntity getProjectByid(@PathVariable("id") Long id) {
 
-        return projectService.findById(id);
+        ProjectEntityDto project = projectService.findById(id);
+
+        if(project == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(project, HttpStatus.OK);
+        }
 
     }
 
@@ -47,10 +51,25 @@ public class ProjectController {
 
     }
 
-    @PostMapping(value = "/{id}/tasks")
-    public TaskEntityDto createTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("id") Long projectId) {
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity deleteProjectById(@PathVariable("id") Long id) {
 
-        return taskService.createTaskInsideProject(request, projectId);
+        projectService.delete(id);
+
+        return ResponseEntity.ok("deleted successfully");
+
+    }
+
+    @PostMapping(value = "/{id}/tasks")
+    public ResponseEntity createTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("id") Long projectId) {
+
+        ProjectEntityDto taskEntityDto = projectService.createTaskInsideProject(request, projectId);
+
+        if(taskEntityDto == null) {
+            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(taskEntityDto, HttpStatus.CREATED);
+        }
 
     }
 }
