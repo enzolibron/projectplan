@@ -1,12 +1,13 @@
 package com.llibron.projectplan.services;
 
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
+import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
 import com.llibron.projectplan.repositories.ProjectRepository;
 import com.llibron.projectplan.repositories.TaskRepository;
-import com.llibron.projectplan.utilities.mapper.ProjectMapper;
+import com.llibron.projectplan.utilities.mapper.TaskMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -38,14 +39,17 @@ public class ProjectServiceImpl implements ProjectService {
     public List<ProjectEntityDto> findAll() {
         List<Project> projects = (List<Project>) projectRepository.findAll();
 
-        return projects.stream().map(ProjectMapper.INSTANCE::projectToProjectEntityDto).collect(Collectors.toList());
+
+        return projects
+                .stream()
+                .map(this::getProjectEntityDto).collect(Collectors.toList());
     }
 
     @Override
     public ProjectEntityDto findById(Long id) {
         Optional<Project> project = projectRepository.findById(id);
 
-        return project.map(ProjectMapper.INSTANCE::projectToProjectEntityDto).orElse(null);
+        return project.map(this::getProjectEntityDto).orElse(null);
 
     }
 
@@ -57,36 +61,69 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public ProjectEntityDto createTaskInsideProject(NewTaskRequest request, Long projectId) {
-        //update project tasks
+
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent()) {
 
-
             List<Task> projectTask = project.get().getTasks();
 
-            //check if dependency exist
-            for (Long taskId : request.getDependencies()) {
-                if (projectTask.stream().noneMatch(task -> task.getId().equals(taskId))) {
-                    return null;
-                }
+            //check if task dependency exist, if not bad request
+            HashSet<Long> projectTasksIdSet = new HashSet<>(projectTask.stream().map(Task::getId).toList());
+            if (!projectTasksIdSet.containsAll(request.getDependencies())) {
+                return null;
             }
 
             Task newTask = new Task();
             newTask.setDuration(request.getDuration());
             newTask.setName(request.getName());
             newTask.setDependencies(request.getDependencies());
-
+            newTask.setProject(project.get());
 
             List<Task> projectTasks = project.get().getTasks();
             projectTasks.add(taskRepository.save(newTask));
             project.get().setTasks(projectTasks);
 
             Project savedProject = projectRepository.save(processProjectTasksSchedule(project.get()));
-            return ProjectMapper.INSTANCE.projectToProjectEntityDto(savedProject);
+
+            return getProjectEntityDto(savedProject);
 
         } else {
             return null;
         }
+
+    }
+
+    private ProjectEntityDto getProjectEntityDto(Project savedProject) {
+        ProjectEntityDto projectEntityDto = new ProjectEntityDto();
+        projectEntityDto.setId(savedProject.getId());
+        projectEntityDto.setName(savedProject.getName());
+        projectEntityDto.setStartDate(savedProject.getStartDate());
+        projectEntityDto.setEndDate(savedProject.getEndDate());
+        List<TaskEntityDto> taskEntityDtos = savedProject.getTasks().stream().map(TaskMapper.INSTANCE::taskToTaskEntityDto).collect(Collectors.toList());
+        projectEntityDto.setTasks(taskEntityDtos);
+
+        return projectEntityDto;
+    }
+
+    @Transactional
+    @Override
+    public ProjectEntityDto deleteAllTaskInsideProject(Long projectId) {
+
+        Optional<Project> project = projectRepository.findById(projectId);
+
+        if (project.isPresent()) {
+            List<Task> tasks = taskRepository.findByProjectId(projectId);
+
+            taskRepository.deleteAll(tasks);
+
+            project.get().setEndDate(project.get().getStartDate());
+
+            return getProjectEntityDto(projectRepository.save(project.get()));
+        } else {
+            return null;
+        }
+
+
 
     }
 
@@ -125,9 +162,11 @@ public class ProjectServiceImpl implements ProjectService {
 
 
         return project;
+
     }
 
     private LocalDate setDate(Project project, LocalDate startDate, List<Long> uncompletedTaskIds, List<Task> processedTasks, Task task) {
+
         task.setStartDate(startDate);
         task.setEndDate(startDate.plusDays(task.getDuration() - 1));
 
@@ -138,7 +177,9 @@ public class ProjectServiceImpl implements ProjectService {
         processedTasks.add(task);
 
         uncompletedTaskIds.removeIf(taskId -> taskId.equals(task.getId()));
+
         return startDate;
+
     }
 
 

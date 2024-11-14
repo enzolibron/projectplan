@@ -18,4 +18,5 @@ public interface ProjectService {
 
     ProjectEntityDto createTaskInsideProject(NewTaskRequest request, Long projectId);
 
+    ProjectEntityDto deleteAllTaskInsideProject(Long projectId);
 }

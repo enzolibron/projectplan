@@ -1,6 +1,5 @@
 package com.llibron.projectplan.utilities.mapper;
 
-import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.requests.NewProjectRequest;
 import com.llibron.projectplan.models.Project;
 import org.mapstruct.Mapper;
@@ -15,7 +14,5 @@ public interface ProjectMapper {
     @Mapping(source = "startDate", target = "endDate")
     @Mapping(source = "startDate", target = "startDate")
     Project newProjectRequestToProject(NewProjectRequest newProjectRequest);
-
-    ProjectEntityDto projectToProjectEntityDto(Project project);
 
 }

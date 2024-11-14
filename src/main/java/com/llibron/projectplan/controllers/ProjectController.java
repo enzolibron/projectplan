@@ -54,9 +54,14 @@ public class ProjectController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteProjectById(@PathVariable("id") Long id) {
 
-        projectService.delete(id);
+        ProjectEntityDto project = projectService.findById(id);
 
-        return ResponseEntity.ok("deleted successfully");
+        if (project == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            projectService.delete(id);
+            return ResponseEntity.ok("deleted successfully");
+        }
 
     }
 
@@ -73,10 +78,16 @@ public class ProjectController {
 
     }
 
-    @PutMapping(value = "/{projectId}/tasks/{taskId}")
-    public ResponseEntity updateTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+    @DeleteMapping(value = "/{projectId}/tasks")
+    public ResponseEntity deleteAllTaskInsideProject(@PathVariable("projectId") Long projectId) {
 
-        return null;
+        ProjectEntityDto projectEntityDto = projectService.deleteAllTaskInsideProject(projectId);
+
+        if (projectEntityDto == null) {
+            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
+        } else {
+            return ResponseEntity.ok("deleted successfully");
+        }
 
     }
 }

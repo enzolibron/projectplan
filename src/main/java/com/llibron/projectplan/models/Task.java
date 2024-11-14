@@ -1,6 +1,5 @@
 package com.llibron.projectplan.models;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,6 +20,10 @@ public class Task {
 
     @ElementCollection
     private List<Long> dependencies;
+
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     private LocalDate startDate;
 
