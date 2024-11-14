@@ -1,10 +1,11 @@
 package com.llibron.projectplan.services;
 
-import com.llibron.projectplan.models.Task;
+import com.llibron.projectplan.dtos.entity.TaskEntityDto;
+import com.llibron.projectplan.dtos.requests.NewTaskRequest;
 
 public interface TaskService {
 
-    Task save(Task task);
+    TaskEntityDto createTaskInsideProject(NewTaskRequest request, Long projectId);
 
-    Task findById(Long id);
+    TaskEntityDto findById(Long id);
 }

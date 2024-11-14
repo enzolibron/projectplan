@@ -15,8 +15,7 @@ public class Project {
 
     private String name;
 
-    @OneToMany
-    @JoinColumn(name = "tasks")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
     private LocalDate startDate;

@@ -2,6 +2,9 @@ package com.llibron.projectplan.dtos.requests;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 public class NewTaskRequest {
 
@@ -9,6 +12,6 @@ public class NewTaskRequest {
 
     private int duration;
 
-    private final int[] dependencies = new int[0];
+    private final List<Long> dependencies = new ArrayList<>();
 
 }

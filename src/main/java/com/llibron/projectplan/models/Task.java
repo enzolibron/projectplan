@@ -1,5 +1,6 @@
 package com.llibron.projectplan.models;
 
+import com.llibron.projectplan.utilities.jackson.LongListToJsonConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
@@ -17,11 +18,11 @@ public class Task {
 
     private int duration;
 
-    @OneToMany
-    @JoinColumn(name = "dependencies")
-    private List<Task> dependencies;
+    @Convert(converter = LongListToJsonConverter.class)
+    private List<Long> dependencies;
 
-    private Long projectId;
+    @ManyToOne
+    private Project project;
 
     private LocalDate startDate;
 
