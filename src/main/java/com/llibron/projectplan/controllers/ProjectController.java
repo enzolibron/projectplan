@@ -26,19 +26,31 @@ public class ProjectController {
 
     @GetMapping
     public List<ProjectEntityDto> getAllProjects() {
+
         return projectService.findAll();
+
+    }
+
+    @GetMapping(value = "/{id}")
+    public ProjectEntityDto getAllProjects(@PathVariable("id") Long id) {
+
+        return projectService.findById(id);
 
     }
 
     @PostMapping
     public Project createProject(@RequestBody NewProjectRequest request) {
+
         Project newProject = ProjectMapper.INSTANCE.newProjectRequestToProject(request);
 
         return projectService.save(newProject);
+
     }
 
     @PostMapping(value = "/{id}/tasks")
     public TaskEntityDto createTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("id") Long projectId) {
+
         return taskService.createTaskInsideProject(request, projectId);
+
     }
 }

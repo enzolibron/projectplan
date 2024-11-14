@@ -8,6 +8,7 @@ import com.llibron.projectplan.utilities.mapper.TaskMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,8 +44,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project findById(Long id) {
-        return projectRepository.findById(id).orElseGet(null);
+    public ProjectEntityDto findById(Long id) {
+        Optional<Project> project = projectRepository.findById(id);
+
+        if(project.isPresent()) {
+            ProjectEntityDto projectEntityDto = new ProjectEntityDto();
+            projectEntityDto.setId(project.get().getId());
+            projectEntityDto.setName(project.get().getName());
+            projectEntityDto.setEndDate(project.get().getEndDate());
+            projectEntityDto.setStartDate(project.get().getStartDate());
+
+            List<TaskEntityDto> tasks = project.get().getTasks().stream().map(TaskMapper.INSTANCE::taskToTaskEntityDTO).toList();
+            projectEntityDto.setTasks(tasks);
+
+            return projectEntityDto;
+        } else {
+            return null;
+        }
+
     }
 
     @Override

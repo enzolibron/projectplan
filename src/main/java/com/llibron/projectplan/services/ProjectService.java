@@ -11,7 +11,7 @@ public interface ProjectService {
 
     List<ProjectEntityDto> findAll();
 
-    Project findById(Long id);
+    ProjectEntityDto findById(Long id);
 
     void delete(Long id);
 
