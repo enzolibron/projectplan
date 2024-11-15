@@ -37,12 +37,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectEntityDto> findAll() {
-        List<Project> projects = (List<Project>) projectRepository.findAll();
 
+        List<Project> projects = (List<Project>) projectRepository.findAll();
 
         return projects
                 .stream()
                 .map(this::getProjectEntityDto).collect(Collectors.toList());
+
     }
 
     @Override
@@ -65,10 +66,10 @@ public class ProjectServiceImpl implements ProjectService {
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent()) {
 
-            List<Task> projectTask = project.get().getTasks();
+            List<Task> projectTasks = project.get().getTasks();
 
             //check if task dependency exist, if not bad request
-            HashSet<Long> projectTasksIdSet = new HashSet<>(projectTask.stream().map(Task::getId).toList());
+            HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
             if (!projectTasksIdSet.containsAll(request.getDependencies())) {
                 return null;
             }
@@ -79,7 +80,6 @@ public class ProjectServiceImpl implements ProjectService {
             newTask.setDependencies(request.getDependencies());
             newTask.setProject(project.get());
 
-            List<Task> projectTasks = project.get().getTasks();
             projectTasks.add(taskRepository.save(newTask));
             project.get().setTasks(projectTasks);
 
@@ -93,17 +93,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
 
-    private ProjectEntityDto getProjectEntityDto(Project savedProject) {
-        ProjectEntityDto projectEntityDto = new ProjectEntityDto();
-        projectEntityDto.setId(savedProject.getId());
-        projectEntityDto.setName(savedProject.getName());
-        projectEntityDto.setStartDate(savedProject.getStartDate());
-        projectEntityDto.setEndDate(savedProject.getEndDate());
-        List<TaskEntityDto> taskEntityDtos = savedProject.getTasks().stream().map(TaskMapper.INSTANCE::taskToTaskEntityDto).collect(Collectors.toList());
-        projectEntityDto.setTasks(taskEntityDtos);
 
-        return projectEntityDto;
-    }
 
     @Transactional
     @Override
@@ -123,8 +113,18 @@ public class ProjectServiceImpl implements ProjectService {
             return null;
         }
 
+    }
 
+    private ProjectEntityDto getProjectEntityDto(Project savedProject) {
+        ProjectEntityDto projectEntityDto = new ProjectEntityDto();
+        projectEntityDto.setId(savedProject.getId());
+        projectEntityDto.setName(savedProject.getName());
+        projectEntityDto.setStartDate(savedProject.getStartDate());
+        projectEntityDto.setEndDate(savedProject.getEndDate());
+        List<TaskEntityDto> taskEntityDtos = savedProject.getTasks().stream().map(TaskMapper.INSTANCE::taskToTaskEntityDto).collect(Collectors.toList());
+        projectEntityDto.setTasks(taskEntityDtos);
 
+        return projectEntityDto;
     }
 
     public Project processProjectTasksSchedule(Project project) {

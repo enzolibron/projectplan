@@ -78,10 +78,10 @@ public class ProjectController {
 
     }
 
-    @DeleteMapping(value = "/{projectId}/tasks")
-    public ResponseEntity deleteAllTaskInsideProject(@PathVariable("projectId") Long projectId) {
+    @DeleteMapping(value = "/{id}/tasks")
+    public ResponseEntity deleteAllTaskInsideProject(@PathVariable("id") Long id) {
 
-        ProjectEntityDto projectEntityDto = projectService.deleteAllTaskInsideProject(projectId);
+        ProjectEntityDto projectEntityDto = projectService.deleteAllTaskInsideProject(id);
 
         if (projectEntityDto == null) {
             return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
