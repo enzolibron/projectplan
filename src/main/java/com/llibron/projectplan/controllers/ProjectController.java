@@ -68,12 +68,25 @@ public class ProjectController {
     @PostMapping(value = "/{id}/tasks")
     public ResponseEntity createTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("id") Long projectId) {
 
-        ProjectEntityDto taskEntityDto = projectService.createTaskInsideProject(request, projectId);
+        ProjectEntityDto projectEntityDto = projectService.createTaskInsideProject(request, projectId);
 
-        if (taskEntityDto == null) {
+        if (projectEntityDto == null) {
             return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
         } else {
-            return new ResponseEntity<>(taskEntityDto, HttpStatus.CREATED);
+            return new ResponseEntity<>(projectEntityDto, HttpStatus.CREATED);
+        }
+
+    }
+
+    @PutMapping(value = "/{projectId}/tasks/{taskId}")
+    public ResponseEntity updateTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+
+        ProjectEntityDto projectEntityDto = projectService.updateTaskInsideProject(request, projectId, taskId);
+
+        if (projectEntityDto == null) {
+            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(projectEntityDto, HttpStatus.CREATED);
         }
 
     }

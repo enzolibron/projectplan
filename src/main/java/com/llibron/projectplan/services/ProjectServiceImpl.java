@@ -68,7 +68,7 @@ public class ProjectServiceImpl implements ProjectService {
 
             List<Task> projectTasks = project.get().getTasks();
 
-            //check if task dependency exist, if not bad request
+            //check if dependencies of new task exist, if not catch error
             HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
             if (!projectTasksIdSet.containsAll(request.getDependencies())) {
                 return null;
@@ -94,7 +94,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
-
     @Transactional
     @Override
     public ProjectEntityDto deleteAllTaskInsideProject(Long projectId) {
@@ -113,6 +112,77 @@ public class ProjectServiceImpl implements ProjectService {
             return null;
         }
 
+    }
+
+    @Override
+    public ProjectEntityDto updateTaskInsideProject(NewTaskRequest request, Long projectId, Long taskId) {
+
+        //get project
+        Optional<Project> project = projectRepository.findById(projectId);
+
+        //check if project exist
+        if (project.isPresent()) {
+
+            //get project tasks
+            List<Task> projectTasks = project.get().getTasks();
+
+            //get task from project tasks that will be updated
+            Optional<Task> taskToBeUpdated = projectTasks.stream().filter(task -> task.getId().equals(taskId)).findFirst();
+
+            //if task not existing, catch error
+            if (taskToBeUpdated.isPresent()) {
+
+                //check if taskToBeUpdated is not in the dependency list
+                if (request.getDependencies().contains(taskId)) {
+                    return null;
+                }
+
+                //check if each task dependency in request is existing and valid, if catch error
+                if(!ifValidDependency(request.getDependencies(), taskId)){
+                    return null;
+                }
+
+                //update task
+                taskToBeUpdated.get().setDuration(request.getDuration());
+                taskToBeUpdated.get().setName(request.getName());
+                taskToBeUpdated.get().setDependencies(request.getDependencies());
+
+                taskRepository.save(taskRepository.save(taskToBeUpdated.get()));
+
+                Project savedProject = projectRepository.save(processProjectTasksSchedule(project.get()));
+
+                return getProjectEntityDto(savedProject);
+
+
+            } else {
+                return null;
+            }
+
+        } else {
+            return null;
+        }
+
+    }
+
+    public Boolean ifValidDependency(List<Long> dependenciesIds, Long taskId) {
+        for (Long dependencyId : dependenciesIds) {
+            Optional<Task> dependency = taskRepository.findById(dependencyId);
+            if (dependency.isPresent()) {
+                if (!dependency.get().getDependencies().isEmpty()) {
+
+                    if (dependency.get().getDependencies().contains(taskId)) {
+                        return false;
+                    }
+
+                    ifValidDependency(dependency.get().getDependencies(), taskId);
+                }
+
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private ProjectEntityDto getProjectEntityDto(Project savedProject) {
