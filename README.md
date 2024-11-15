@@ -116,6 +116,61 @@ __Response Body__
   }
   ```
 
+- ## Update a task inside a project
+
+#### PUT *localhost:8080/api/projects/{projectId}/tasks*
+
+__Request Body__
+  ```
+  {
+      "name": "REQ ANALYSIS",
+      "duration": 2,
+      "dependencies": [
+          1
+      ]
+  }
+  ```
+
+__Response Body__
+  ```
+  {
+      "id": 1,
+      "name": "Project One",
+      "tasks": [
+          {
+              "id": 1,
+              "name": "REQ GATHERING",
+              "duration": 2,
+              "dependencies": [],
+              "startDate": "11-14-2024",
+              "endDate": "11-15-2024"
+          },
+          {
+              "id": 2,
+              "name": "REQ ANALYSIS",
+              "duration": 2,
+              "dependencies": [
+                  1
+              ],
+              "startDate": "11-16-2024",
+              "endDate": "11-17-2024"
+          },
+          {
+              "id": 3,
+              "name": "DEV SETUP",
+              "duration": 2,
+              "dependencies": [
+                  1
+              ],
+              "startDate": "11-18-2024",
+              "endDate": "11-19-2024"
+          }
+      ],
+      "startDate": "11-14-2024",
+      "endDate": "11-19-2024"
+  }
+  ```
+
 - ## Get a project by id
 
 #### GET *localhost:8080/api/projects/{id}*

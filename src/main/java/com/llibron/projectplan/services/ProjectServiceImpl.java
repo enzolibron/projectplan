@@ -12,10 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -215,10 +212,10 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         //process all task w/dependency
-        List<Task> projectTasksWithDependency = project.getTasks().stream().filter(task -> !task.getDependencies().isEmpty()).toList();
         while (!uncompletedTaskIds.isEmpty()) {
-            for (Task task : projectTasksWithDependency) {
-                List<Long> processedTaskIds = project.getTasks().stream().map(Task::getId).toList();
+            List<Task> unprocessedTasks = uncompletedTaskIds.stream().map(id -> taskRepository.findById(id).get()).collect(Collectors.toList());
+            for (Task task : unprocessedTasks) {
+                List<Long> processedTaskIds = processedTasks.stream().map(Task::getId).toList();
                 if (new HashSet<>(processedTaskIds).containsAll(task.getDependencies())) {
 
                     startDate = setDate(project, startDate, uncompletedTaskIds, processedTasks, task);

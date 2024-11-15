@@ -60,7 +60,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\":\"Environment Analysis\",\r\n    \"duration\":4,\r\n    \"dependencies\": [1]\r\n}",
+					"raw": "{\r\n    \"name\":\"Dev Environment Setup\",\r\n    \"duration\":4,\r\n    \"dependencies\": []\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -151,6 +151,37 @@
 						"api",
 						"projects",
 						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update task inside project",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"REQ ANALYSIS\",\r\n    \"duration\": 2,\r\n    \"dependencies\": [\r\n        1\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/projects/1/tasks/2",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"projects",
+						"1",
+						"tasks",
+						"2"
 					]
 				}
 			},
