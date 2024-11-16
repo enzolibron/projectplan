@@ -2,6 +2,7 @@ package com.llibron.projectplan.services;
 
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
+import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public interface ProjectService {
 
     ProjectEntityDto deleteAllTaskInsideProject(Long projectId);
 
-    ProjectEntityDto updateTaskInsideProject(NewTaskRequest request, Long projectId, Long taskId);
+    ProjectEntityDto updateTaskInsideProject(UpdateTaskRequest request, Long projectId, Long taskId);
 }

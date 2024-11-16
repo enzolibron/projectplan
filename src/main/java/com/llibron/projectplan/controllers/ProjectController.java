@@ -3,6 +3,7 @@ package com.llibron.projectplan.controllers;
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.requests.NewProjectRequest;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
+import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.services.ProjectService;
 import com.llibron.projectplan.utilities.mapper.ProjectMapper;
@@ -78,8 +79,8 @@ public class ProjectController {
 
     }
 
-    @PutMapping(value = "/{projectId}/tasks/{taskId}")
-    public ResponseEntity updateTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+    @PatchMapping(value = "/{projectId}/tasks/{taskId}")
+    public ResponseEntity updateTaskInsideProject(@RequestBody UpdateTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
 
         ProjectEntityDto projectEntityDto = projectService.updateTaskInsideProject(request, projectId, taskId);
 

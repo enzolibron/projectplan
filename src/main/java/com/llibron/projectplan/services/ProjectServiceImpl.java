@@ -3,6 +3,7 @@ package com.llibron.projectplan.services;
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
+import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
 import com.llibron.projectplan.repositories.ProjectRepository;
@@ -63,6 +64,7 @@ public class ProjectServiceImpl implements ProjectService {
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent()) {
 
+            //get all task inside project
             List<Task> projectTasks = project.get().getTasks();
 
             //check if dependencies of new task exist, if not catch error
@@ -111,8 +113,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
 
+    @Transactional
     @Override
-    public ProjectEntityDto updateTaskInsideProject(NewTaskRequest request, Long projectId, Long taskId) {
+    public ProjectEntityDto updateTaskInsideProject(UpdateTaskRequest request, Long projectId, Long taskId) {
 
         //get project
         Optional<Project> project = projectRepository.findById(projectId);
@@ -120,42 +123,50 @@ public class ProjectServiceImpl implements ProjectService {
         //check if project exist
         if (project.isPresent()) {
 
-            //get project tasks
-            List<Task> projectTasks = project.get().getTasks();
-
             //get task from project tasks that will be updated
-            Optional<Task> taskToBeUpdated = projectTasks.stream().filter(task -> task.getId().equals(taskId)).findFirst();
+            Optional<Task> taskToBeUpdated = taskRepository.findById(taskId);
 
             //if task not existing, catch error
             if (taskToBeUpdated.isPresent()) {
 
-                //check if taskToBeUpdated is not in the dependency list
-                if (request.getDependencies().contains(taskId)) {
-                    return null;
-                }
+                if(request.getDependencies() != null) {
+                    //check if taskToBeUpdated is not in the dependency list
+                    if (request.getDependencies().contains(taskId)) {
+                        return null;
+                    }
 
-                //check if each task dependency in request is existing and valid, if catch error
-                if(!ifValidDependency(request.getDependencies(), taskId)){
-                    return null;
+                    //check if each task dependency in request is existing and valid, if catch error
+                    if(!ifValidDependency(request.getDependencies(), taskId)){
+                        return null;
+                    }
+
+                    taskToBeUpdated.get().setDependencies(request.getDependencies());
+
                 }
 
                 //update task
-                taskToBeUpdated.get().setDuration(request.getDuration());
-                taskToBeUpdated.get().setName(request.getName());
-                taskToBeUpdated.get().setDependencies(request.getDependencies());
+                if(request.getDuration() != null){
+                    taskToBeUpdated.get().setDuration(request.getDuration());
+                }
 
-                taskRepository.save(taskRepository.save(taskToBeUpdated.get()));
+                if(request.getName() != null){
+                    taskToBeUpdated.get().setName(request.getName());
+                }
 
-                Project savedProject = projectRepository.save(processProjectTasksSchedule(project.get()));
+                taskRepository.save(taskToBeUpdated.get());
+
+                Project ProjectPostProcessTaskSchedule = processProjectTasksSchedule(projectRepository.findById(projectId).get());
+                Project savedProject = projectRepository.save(ProjectPostProcessTaskSchedule);
 
                 return getProjectEntityDto(savedProject);
 
-
             } else {
+                //TODO: throw exception when task is not existing
                 return null;
             }
 
         } else {
+            //TODO: throw exception when project is not existing
             return null;
         }
 
