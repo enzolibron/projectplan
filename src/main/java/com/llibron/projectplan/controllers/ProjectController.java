@@ -92,6 +92,14 @@ public class ProjectController {
 
     }
 
+    @DeleteMapping(value = "/{projectId}/tasks/{taskId}")
+    public ResponseEntity deleteTaskInsideProject(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+
+        projectService.deleteTaskInsideProject(projectId, taskId);
+
+        return ResponseEntity.ok("deleted successfully");
+    }
+
     @DeleteMapping(value = "/{id}/tasks")
     public ResponseEntity deleteAllTaskInsideProject(@PathVariable("id") Long id) {
 

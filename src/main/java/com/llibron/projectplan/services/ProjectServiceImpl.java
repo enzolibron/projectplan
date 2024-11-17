@@ -94,6 +94,32 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
 
+    @Override
+    public void deleteTaskInsideProject(Long projectId, Long taskId) {
+
+        Optional<Project> project = projectRepository.findById(projectId);
+        if (project.isPresent()) {
+
+            //get task from project tasks that will be updated
+            Optional<Task> taskToBeUpdated = project.get().getTasks().stream().filter(task -> task.getId().equals(taskId)).findFirst();
+
+            if (taskToBeUpdated.isPresent()) {
+                project.get().getTasks().remove(taskToBeUpdated.get());
+                taskRepository.deleteById(taskToBeUpdated.get().getId());
+
+                //update task dependencies, remove deleted task from list of dependencies
+                project.get().getTasks().forEach(task -> task.getDependencies().remove(taskId));
+
+                Project ProjectPostProcessTaskSchedule = processProjectTasksSchedule(project.get());
+                projectRepository.save(ProjectPostProcessTaskSchedule);
+
+            } else {
+                //TODO: throw exception
+            }
+        } else {
+            //TODO: throw exception
+        }
+    }
 
     @Transactional
     @Override
@@ -106,6 +132,7 @@ public class ProjectServiceImpl implements ProjectService {
 
             taskRepository.deleteAll(tasks);
 
+            project.get().setTasks(new ArrayList<>());
             project.get().setEndDate(project.get().getStartDate());
 
             return getProjectEntityDto(projectRepository.save(project.get()));
@@ -131,6 +158,7 @@ public class ProjectServiceImpl implements ProjectService {
             //if task not existing, catch error
             if (taskToBeUpdated.isPresent()) {
 
+                //update task dependencies
                 if(request.getDependencies() != null) {
                     //check if taskToBeUpdated is not in the dependency list
                     if (request.getDependencies().contains(taskId)) {
@@ -146,11 +174,12 @@ public class ProjectServiceImpl implements ProjectService {
 
                 }
 
-                //update task
+                //update task duration
                 if(request.getDuration() != null){
                     taskToBeUpdated.get().setDuration(request.getDuration());
                 }
 
+                //update task name
                 if(request.getName() != null){
                     taskToBeUpdated.get().setName(request.getName());
                 }
