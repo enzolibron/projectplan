@@ -3,6 +3,7 @@ package com.llibron.projectplan.services;
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
+import com.llibron.projectplan.dtos.requests.UpdateProjectRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
@@ -29,8 +30,30 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project save(Project project) {
+    public Project saveProject(Project project) {
         return projectRepository.save(project);
+    }
+
+    @Override
+    public ProjectEntityDto updateProject(UpdateProjectRequest updateProjectRequest, Long projectId) {
+        Optional<Project> project = projectRepository.findById(projectId);
+
+        if (project.isPresent()) {
+            if(updateProjectRequest.getName() != null) {
+                project.get().setName(updateProjectRequest.getName());
+            }
+
+            if(updateProjectRequest.getStartDate() != null) {
+                project.get().setStartDate(updateProjectRequest.getStartDate());
+                project = Optional.of(processProjectTasksSchedule(project.get()));
+            }
+
+            Project updatedProject = saveProject(project.get());
+            return getProjectEntityDto(updatedProject);
+        } else {
+            //TODO: throw exception
+            return null;
+        }
     }
 
     @Override
@@ -83,7 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectTasks.add(taskRepository.save(newTask));
             project.get().setTasks(projectTasks);
 
-            Project savedProject = projectRepository.save(processProjectTasksSchedule(project.get()));
+            Project savedProject = saveProject(processProjectTasksSchedule(project.get()));
 
             return getProjectEntityDto(savedProject);
 
@@ -111,7 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
                 project.get().getTasks().forEach(task -> task.getDependencies().remove(taskId));
 
                 Project ProjectPostProcessTaskSchedule = processProjectTasksSchedule(project.get());
-                projectRepository.save(ProjectPostProcessTaskSchedule);
+                saveProject(ProjectPostProcessTaskSchedule);
 
             } else {
                 //TODO: throw exception
@@ -135,7 +158,7 @@ public class ProjectServiceImpl implements ProjectService {
             project.get().setTasks(new ArrayList<>());
             project.get().setEndDate(project.get().getStartDate());
 
-            return getProjectEntityDto(projectRepository.save(project.get()));
+            return getProjectEntityDto(saveProject(project.get()));
         } else {
             return null;
         }
@@ -187,7 +210,7 @@ public class ProjectServiceImpl implements ProjectService {
                 taskRepository.save(taskToBeUpdated.get());
 
                 Project ProjectPostProcessTaskSchedule = processProjectTasksSchedule(project.get());
-                Project savedProject = projectRepository.save(ProjectPostProcessTaskSchedule);
+                Project savedProject = saveProject(ProjectPostProcessTaskSchedule);
 
                 return getProjectEntityDto(savedProject);
 

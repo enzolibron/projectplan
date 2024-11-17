@@ -3,6 +3,7 @@ package com.llibron.projectplan.controllers;
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.requests.NewProjectRequest;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
+import com.llibron.projectplan.dtos.requests.UpdateProjectRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.services.ProjectService;
@@ -43,12 +44,25 @@ public class ProjectController {
 
     }
 
+    @PatchMapping(value = "/{id}")
+    public ResponseEntity updateProject(@RequestBody UpdateProjectRequest request, @PathVariable("id") Long id) {
+
+        ProjectEntityDto updatedProject = projectService.updateProject(request, id);
+
+        if (updatedProject != null) {
+            return ResponseEntity.ok(updatedProject);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
     @PostMapping
     public Project createProject(@RequestBody NewProjectRequest request) {
 
         Project newProject = ProjectMapper.INSTANCE.newProjectRequestToProject(request);
 
-        return projectService.save(newProject);
+        return projectService.saveProject(newProject);
 
     }
 
