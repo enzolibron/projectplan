@@ -70,6 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
             //check if dependencies of new task exist, if not catch error
             HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
             if (!projectTasksIdSet.containsAll(request.getDependencies())) {
+                //TODO: throw exception
                 return null;
             }
 
@@ -87,6 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
             return getProjectEntityDto(savedProject);
 
         } else {
+            //TODO: throw exception
             return null;
         }
 
@@ -124,7 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (project.isPresent()) {
 
             //get task from project tasks that will be updated
-            Optional<Task> taskToBeUpdated = taskRepository.findById(taskId);
+            Optional<Task> taskToBeUpdated = project.get().getTasks().stream().filter(task -> task.getId().equals(taskId)).findFirst();
 
             //if task not existing, catch error
             if (taskToBeUpdated.isPresent()) {
@@ -155,7 +157,7 @@ public class ProjectServiceImpl implements ProjectService {
 
                 taskRepository.save(taskToBeUpdated.get());
 
-                Project ProjectPostProcessTaskSchedule = processProjectTasksSchedule(projectRepository.findById(projectId).get());
+                Project ProjectPostProcessTaskSchedule = processProjectTasksSchedule(project.get());
                 Project savedProject = projectRepository.save(ProjectPostProcessTaskSchedule);
 
                 return getProjectEntityDto(savedProject);
