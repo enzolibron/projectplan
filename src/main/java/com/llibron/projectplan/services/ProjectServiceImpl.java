@@ -4,6 +4,7 @@ import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
+import com.llibron.projectplan.exceptions.custom.InvalidTaskRequestException;
 import com.llibron.projectplan.exceptions.custom.ResourceNotFoundException;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
@@ -98,11 +99,10 @@ public class ProjectServiceImpl implements ProjectService {
             //get all task inside project
             List<Task> projectTasks = project.get().getTasks();
 
-            //check if dependencies of new task exist, if not catch error
+            //check if new task dependencies exist
             HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
             if (!projectTasksIdSet.containsAll(request.getDependencies())) {
-                //TODO: throw exception
-                return null;
+                throw new InvalidTaskRequestException("Invalid task dependencies");
             }
 
             Task newTask = new Task();
@@ -144,7 +144,7 @@ public class ProjectServiceImpl implements ProjectService {
                 saveProject(ProjectPostProcessTaskSchedule);
 
             } else {
-                //TODO: throw exception
+                throw new ResourceNotFoundException("task with id: " + taskId + " not found");
             }
         } else {
             throw new ResourceNotFoundException("project with id: " + projectId + " not found");
@@ -190,14 +190,14 @@ public class ProjectServiceImpl implements ProjectService {
 
                 //update task dependencies
                 if (request.getDependencies() != null) {
-                    //check if taskToBeUpdated is not in the dependency list
+                    //check if taskToBeUpdated is in the dependency list
                     if (request.getDependencies().contains(taskId)) {
-                        return null;
+                        throw new InvalidTaskRequestException("Invalid task dependencies");
                     }
 
                     //check if each task dependency in request is existing and valid, if catch error
                     if (!ifValidDependency(request.getDependencies(), taskId)) {
-                        return null;
+                        throw new InvalidTaskRequestException("Invalid task dependencies");
                     }
 
                     taskToBeUpdated.get().setDependencies(request.getDependencies());
@@ -222,8 +222,7 @@ public class ProjectServiceImpl implements ProjectService {
                 return getProjectEntityDto(savedProject);
 
             } else {
-                //TODO: throw exception when task is not existing
-                return null;
+                throw new ResourceNotFoundException("task with id: " + taskId + " not found");
             }
 
         } else {

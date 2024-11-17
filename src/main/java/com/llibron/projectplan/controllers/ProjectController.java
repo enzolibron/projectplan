@@ -79,11 +79,7 @@ public class ProjectController {
 
         ProjectEntityDto projectEntityDto = projectService.createTaskInsideProject(request, projectId);
 
-        if (projectEntityDto == null) {
-            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
-        } else {
-            return new ResponseEntity<>(projectEntityDto, HttpStatus.CREATED);
-        }
+        return new ResponseEntity<>(projectEntityDto, HttpStatus.CREATED);
 
     }
 
@@ -92,11 +88,7 @@ public class ProjectController {
 
         ProjectEntityDto projectEntityDto = projectService.updateTaskInsideProject(request, projectId, taskId);
 
-        if (projectEntityDto == null) {
-            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
-        } else {
-            return new ResponseEntity<>(projectEntityDto, HttpStatus.CREATED);
-        }
+        return new ResponseEntity<>(projectEntityDto, HttpStatus.CREATED);
 
     }
 
@@ -111,13 +103,9 @@ public class ProjectController {
     @DeleteMapping(value = "/{id}/tasks")
     public ResponseEntity<?> deleteAllTaskInsideProject(@PathVariable("id") Long id) {
 
-        ProjectEntityDto projectEntityDto = projectService.deleteAllTaskInsideProject(id);
+        projectService.deleteAllTaskInsideProject(id);
 
-        if (projectEntityDto == null) {
-            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
-        } else {
-            return ResponseEntity.ok("deleted successfully");
-        }
+        return ResponseEntity.ok("deleted successfully");
 
     }
 }

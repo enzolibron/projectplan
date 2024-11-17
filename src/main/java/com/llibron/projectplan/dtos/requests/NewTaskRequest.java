@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class NewTaskRequest {
 
-    @NotNull(message = "task name is required")
+    @NotNull(message = "name is required")
     private String name;
 
     @NotNull(message = "duration is required")
