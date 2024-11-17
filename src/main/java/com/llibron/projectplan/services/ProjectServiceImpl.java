@@ -4,6 +4,7 @@ import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
+import com.llibron.projectplan.exceptions.custom.ResourceNotFoundException;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
 import com.llibron.projectplan.repositories.ProjectRepository;
@@ -13,7 +14,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,11 +42,11 @@ public class ProjectServiceImpl implements ProjectService {
         Optional<Project> project = projectRepository.findById(projectId);
 
         if (project.isPresent()) {
-            if(updateProjectRequest.getName() != null) {
+            if (updateProjectRequest.getName() != null) {
                 project.get().setName(updateProjectRequest.getName());
             }
 
-            if(updateProjectRequest.getStartDate() != null) {
+            if (updateProjectRequest.getStartDate() != null) {
                 project.get().setStartDate(updateProjectRequest.getStartDate());
                 project = Optional.of(processProjectTasksSchedule(project.get()));
             }
@@ -50,8 +54,7 @@ public class ProjectServiceImpl implements ProjectService {
             Project updatedProject = saveProject(project.get());
             return getProjectEntityDto(updatedProject);
         } else {
-            //TODO: throw exception
-            return null;
+            throw new ResourceNotFoundException("project with id: " + projectId + " not found");
         }
     }
 
@@ -70,12 +73,18 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectEntityDto findById(Long id) {
         Optional<Project> project = projectRepository.findById(id);
 
-        return project.map(this::getProjectEntityDto).orElse(null);
+        return project.map(this::getProjectEntityDto).orElseThrow(() -> new ResourceNotFoundException("project with id: " + id + " not found"));
 
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteProjectById(Long id) {
+        Optional<Project> project = projectRepository.findById(id);
+
+        if(project.isEmpty()) {
+            throw new ResourceNotFoundException("project with id: " + id + " not found");
+        }
+
         projectRepository.deleteById(id);
     }
 
@@ -110,8 +119,7 @@ public class ProjectServiceImpl implements ProjectService {
             return getProjectEntityDto(savedProject);
 
         } else {
-            //TODO: throw exception
-            return null;
+            throw new ResourceNotFoundException("project with id: " + projectId + " not found");
         }
 
     }
@@ -139,7 +147,7 @@ public class ProjectServiceImpl implements ProjectService {
                 //TODO: throw exception
             }
         } else {
-            //TODO: throw exception
+            throw new ResourceNotFoundException("project with id: " + projectId + " not found");
         }
     }
 
@@ -159,7 +167,7 @@ public class ProjectServiceImpl implements ProjectService {
 
             return getProjectEntityDto(saveProject(project.get()));
         } else {
-            return null;
+            throw new ResourceNotFoundException("project with id: " + projectId + " not found");
         }
 
     }
@@ -181,14 +189,14 @@ public class ProjectServiceImpl implements ProjectService {
             if (taskToBeUpdated.isPresent()) {
 
                 //update task dependencies
-                if(request.getDependencies() != null) {
+                if (request.getDependencies() != null) {
                     //check if taskToBeUpdated is not in the dependency list
                     if (request.getDependencies().contains(taskId)) {
                         return null;
                     }
 
                     //check if each task dependency in request is existing and valid, if catch error
-                    if(!ifValidDependency(request.getDependencies(), taskId)){
+                    if (!ifValidDependency(request.getDependencies(), taskId)) {
                         return null;
                     }
 
@@ -197,12 +205,12 @@ public class ProjectServiceImpl implements ProjectService {
                 }
 
                 //update task duration
-                if(request.getDuration() != null){
+                if (request.getDuration() != null) {
                     taskToBeUpdated.get().setDuration(request.getDuration());
                 }
 
                 //update task name
-                if(request.getName() != null){
+                if (request.getName() != null) {
                     taskToBeUpdated.get().setName(request.getName());
                 }
 
@@ -219,8 +227,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
 
         } else {
-            //TODO: throw exception when project is not existing
-            return null;
+            throw new ResourceNotFoundException("project with id: " + projectId + " not found");
         }
 
     }

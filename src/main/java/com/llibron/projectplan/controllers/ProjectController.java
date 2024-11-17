@@ -42,11 +42,7 @@ public class ProjectController {
 
         ProjectEntityDto project = projectService.findById(id);
 
-        if (project == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(project, HttpStatus.OK);
-        }
+        return ResponseEntity.ok(project);
 
     }
 
@@ -56,11 +52,7 @@ public class ProjectController {
         Project updateProjectRequest = projectMapper.updateProjectRequestToProject(request);
         ProjectEntityDto updatedProject = projectService.updateProject(updateProjectRequest, id);
 
-        if (updatedProject != null) {
-            return ResponseEntity.ok(updatedProject);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return ResponseEntity.ok(updatedProject);
 
     }
 
@@ -77,14 +69,8 @@ public class ProjectController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteProjectById(@PathVariable("id") Long id) {
 
-        ProjectEntityDto project = projectService.findById(id);
-
-        if (project == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            projectService.delete(id);
-            return ResponseEntity.ok("deleted successfully");
-        }
+        projectService.deleteProjectById(id);
+        return ResponseEntity.ok("deleted successfully");
 
     }
 
