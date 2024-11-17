@@ -1,20 +1,17 @@
 package com.llibron.projectplan.dtos.requests;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.llibron.projectplan.models.Task;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Getter
 public class NewProjectRequest {
 
+    @NotNull(message = "project name is required")
     private String name;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy")
-    private LocalDate startDate;
+    @NotNull(message = "project start date is required")
+    @Pattern(regexp = "\\d{2}-\\d{2}-\\d{4}", message = "Date must be in the format MM-dd-yyyy")
+    private String startDate;
 
-    private final List<Task> tasks = new ArrayList<>();
 }

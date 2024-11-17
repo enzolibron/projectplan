@@ -8,15 +8,21 @@ import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.services.ProjectService;
 import com.llibron.projectplan.utilities.mapper.ProjectMapper;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
+
+    @Autowired
+    ProjectMapper projectMapper;
 
     private final ProjectService projectService;
 
@@ -32,7 +38,7 @@ public class ProjectController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity getProjectByid(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getProjectByid(@PathVariable("id") Long id) {
 
         ProjectEntityDto project = projectService.findById(id);
 
@@ -45,9 +51,10 @@ public class ProjectController {
     }
 
     @PatchMapping(value = "/{id}")
-    public ResponseEntity updateProject(@RequestBody UpdateProjectRequest request, @PathVariable("id") Long id) {
+    public ResponseEntity<?> updateProject(@Valid @RequestBody UpdateProjectRequest request, @PathVariable("id") Long id) {
 
-        ProjectEntityDto updatedProject = projectService.updateProject(request, id);
+        Project updateProjectRequest = projectMapper.updateProjectRequestToProject(request);
+        ProjectEntityDto updatedProject = projectService.updateProject(updateProjectRequest, id);
 
         if (updatedProject != null) {
             return ResponseEntity.ok(updatedProject);
@@ -58,16 +65,17 @@ public class ProjectController {
     }
 
     @PostMapping
-    public Project createProject(@RequestBody NewProjectRequest request) {
+    public ResponseEntity<?> createProject(@Valid @RequestBody NewProjectRequest request) {
 
-        Project newProject = ProjectMapper.INSTANCE.newProjectRequestToProject(request);
+        Project newProject = projectMapper.newProjectRequestToProject(request);
+        newProject.setTasks(new ArrayList<>());
 
-        return projectService.saveProject(newProject);
+        return new ResponseEntity<>(projectService.saveProject(newProject), HttpStatus.CREATED);
 
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteProjectById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteProjectById(@PathVariable("id") Long id) {
 
         ProjectEntityDto project = projectService.findById(id);
 
@@ -81,7 +89,7 @@ public class ProjectController {
     }
 
     @PostMapping(value = "/{id}/tasks")
-    public ResponseEntity createTaskInsideProject(@RequestBody NewTaskRequest request, @PathVariable("id") Long projectId) {
+    public ResponseEntity<?> createTaskInsideProject(@Valid @RequestBody NewTaskRequest request, @PathVariable("id") Long projectId) {
 
         ProjectEntityDto projectEntityDto = projectService.createTaskInsideProject(request, projectId);
 
@@ -94,7 +102,7 @@ public class ProjectController {
     }
 
     @PatchMapping(value = "/{projectId}/tasks/{taskId}")
-    public ResponseEntity updateTaskInsideProject(@RequestBody UpdateTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+    public ResponseEntity<?> updateTaskInsideProject(@Valid @RequestBody UpdateTaskRequest request, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
 
         ProjectEntityDto projectEntityDto = projectService.updateTaskInsideProject(request, projectId, taskId);
 
@@ -107,7 +115,7 @@ public class ProjectController {
     }
 
     @DeleteMapping(value = "/{projectId}/tasks/{taskId}")
-    public ResponseEntity deleteTaskInsideProject(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
+    public ResponseEntity<?> deleteTaskInsideProject(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
 
         projectService.deleteTaskInsideProject(projectId, taskId);
 
@@ -115,7 +123,7 @@ public class ProjectController {
     }
 
     @DeleteMapping(value = "/{id}/tasks")
-    public ResponseEntity deleteAllTaskInsideProject(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteAllTaskInsideProject(@PathVariable("id") Long id) {
 
         ProjectEntityDto projectEntityDto = projectService.deleteAllTaskInsideProject(id);
 

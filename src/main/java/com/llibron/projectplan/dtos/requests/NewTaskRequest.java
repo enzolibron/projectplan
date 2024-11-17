@@ -1,5 +1,7 @@
 package com.llibron.projectplan.dtos.requests;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -8,9 +10,12 @@ import java.util.List;
 @Getter
 public class NewTaskRequest {
 
+    @NotNull(message = "task name is required")
     private String name;
 
-    private int duration;
+    @NotNull(message = "duration is required")
+    @Min(value = 1, message = "The duration must be equal or more than 1 day")
+    private Integer duration;
 
     private final List<Long> dependencies = new ArrayList<>();
 

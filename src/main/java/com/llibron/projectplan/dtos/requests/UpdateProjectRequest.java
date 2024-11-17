@@ -1,15 +1,13 @@
 package com.llibron.projectplan.dtos.requests;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
-
-import java.time.LocalDate;
 
 @Getter
 public class UpdateProjectRequest {
 
     private String name;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy")
-    private LocalDate startDate;
+    @Pattern(regexp = "\\d{2}-\\d{2}-\\d{4}", message = "Date must be in the format MM-dd-yyyy")
+    private String startDate;
 }

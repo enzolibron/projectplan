@@ -2,7 +2,6 @@ package com.llibron.projectplan.services;
 
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
-import com.llibron.projectplan.dtos.requests.UpdateProjectRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 
@@ -12,7 +11,7 @@ public interface ProjectService {
 
     Project saveProject(Project project);
 
-    ProjectEntityDto updateProject(UpdateProjectRequest updateProjectRequest, Long projectId);
+    ProjectEntityDto updateProject(Project updateProjectRequest, Long projectId);
 
     List<ProjectEntityDto> findAll();
 

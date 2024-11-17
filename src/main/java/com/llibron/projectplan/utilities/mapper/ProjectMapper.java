@@ -1,18 +1,23 @@
 package com.llibron.projectplan.utilities.mapper;
 
 import com.llibron.projectplan.dtos.requests.NewProjectRequest;
+import com.llibron.projectplan.dtos.requests.UpdateProjectRequest;
 import com.llibron.projectplan.models.Project;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper
-public interface ProjectMapper {
+@Mapper(componentModel = "spring")
+public abstract class ProjectMapper {
 
-    ProjectMapper INSTANCE = Mappers.getMapper(ProjectMapper.class);
+    @Autowired
+    DateMapper dateMapper;
 
-    @Mapping(source = "startDate", target = "endDate")
-    @Mapping(source = "startDate", target = "startDate")
-    Project newProjectRequestToProject(NewProjectRequest newProjectRequest);
+    @Mapping(target = "startDate", expression = "java(dateMapper.asLocalDate(newProjectRequest.getStartDate()))")
+    @Mapping(target = "endDate", expression = "java(dateMapper.asLocalDate(newProjectRequest.getStartDate()))")
+    public abstract Project newProjectRequestToProject(NewProjectRequest newProjectRequest);
+
+    @Mapping(target = "startDate", expression = "java(dateMapper.asLocalDate(updateProjectRequest.getStartDate()))")
+    public abstract Project updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest);
 
 }

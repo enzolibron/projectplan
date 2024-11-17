@@ -3,7 +3,6 @@ package com.llibron.projectplan.services;
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
-import com.llibron.projectplan.dtos.requests.UpdateProjectRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
@@ -35,7 +34,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectEntityDto updateProject(UpdateProjectRequest updateProjectRequest, Long projectId) {
+    public ProjectEntityDto updateProject(Project updateProjectRequest, Long projectId) {
         Optional<Project> project = projectRepository.findById(projectId);
 
         if (project.isPresent()) {
@@ -262,6 +261,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Project processProjectTasksSchedule(Project project) {
 
         if (project.getTasks().isEmpty()) {
+            project.setEndDate(project.getStartDate());
             return project;
         }
         LocalDate startDate = project.getStartDate();
