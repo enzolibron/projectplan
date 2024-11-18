@@ -63,14 +63,14 @@ __Response Body__
           {
               "id": 1,
               "name": "Requirements Gathering",
-              "duration": 4,
+              "duration": 3,
               "dependencies": [],
-              "startDate": "11-14-2024",
-              "endDate": "11-17-2024"
+              "startDate": "11-17-2025",
+              "endDate": "11-19-2025"
           }
       ],
-      "startDate": "11-14-2024",
-      "endDate": "11-17-2024"
+      "startDate": "11-17-2025",
+      "endDate": "11-19-2025"
   }
   ```
 
