@@ -2,7 +2,7 @@
 
 ## Description
 
-Calculates schedules for project task.
+Calculates project task schedules.
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ Calculates schedules for project task.
 
 # Endpoints
 
-- ## Create a project
+ ## 1. Create a project
 
 #### POST *localhost:8080/api/projects*
 
@@ -26,7 +26,7 @@ __Request Body__
   ```
   {
       "name": "Project One",
-      "startDate":"11-14-2024"
+      "startDate":"11-17-2025"
   }
   ```
 __Response Body__
@@ -35,25 +35,24 @@ __Response Body__
       "id": 1,
       "name": "Project One",
       "tasks": [],
-      "startDate": "2024-11-14",
-      "endDate": "2024-11-14"
+      "startDate": "11-17-2025",
+      "endDate": "11-17-2025"
   }
   ```
 
-- ## Create a task inside a project
+
+## 2. Create a task inside a project
 
 #### POST *localhost:8080/api/projects/{projectId}/tasks*
 
 __Request Body__
+  - duration field value is in days
   ```
   {
       "name":"Requirements Gathering",
-      "duration":4,
-      "dependencies": []
+      "duration": 3
   }
   ```
-- duration field value is in days
-- dependencies field value is a list of task that are pre-requisite to the new task
 
 __Response Body__
   ```
@@ -78,10 +77,11 @@ __Response Body__
 another add task sample w/ dependency
 
 __Request Body__
+  - dependencies field value is a list of task that are pre-requisite to the new task
   ```
   {
       "name":"Requirements Analysis",
-      "duration":4,
+      "duration": 4,
       "dependencies": [1]
   }
   ```
@@ -95,10 +95,10 @@ __Response Body__
           {
               "id": 1,
               "name": "Requirements Gathering",
-              "duration": 4,
+              "duration": 3,
               "dependencies": [],
-              "startDate": "11-14-2024",
-              "endDate": "11-17-2024"
+              "startDate": "11-17-2025",
+              "endDate": "11-19-2025"
           },
           {
               "id": 2,
@@ -107,27 +107,24 @@ __Response Body__
               "dependencies": [
                   1
               ],
-              "startDate": "11-18-2024",
-              "endDate": "11-21-2024"
+              "startDate": "11-20-2025",
+              "endDate": "11-23-2025"
           }
       ],
-      "startDate": "11-14-2024",
-      "endDate": "11-21-2024"
+      "startDate": "11-17-2025",
+      "endDate": "11-23-2025"
   }
   ```
 
-- ## Update a task inside a project
+## 3. Update a task inside a project
 
-#### PUT *localhost:8080/api/projects/{projectId}/tasks*
+#### PATCH *localhost:8080/api/projects/{projectId}/tasks/{taskId}*
 
 __Request Body__
+  - you can update fields name, duration, and dependencies
   ```
   {
-      "name": "REQ ANALYSIS",
-      "duration": 2,
-      "dependencies": [
-          1
-      ]
+      "duration": 2
   }
   ```
 
@@ -139,39 +136,70 @@ __Response Body__
       "tasks": [
           {
               "id": 1,
-              "name": "REQ GATHERING",
+              "name": "Requirements Gathering",
               "duration": 2,
               "dependencies": [],
-              "startDate": "11-14-2024",
-              "endDate": "11-15-2024"
+              "startDate": "11-17-2025",
+              "endDate": "11-18-2025"
           },
           {
               "id": 2,
-              "name": "REQ ANALYSIS",
-              "duration": 2,
+              "name": "Requirements Analysis",
+              "duration": 4,
               "dependencies": [
                   1
               ],
-              "startDate": "11-16-2024",
-              "endDate": "11-17-2024"
-          },
-          {
-              "id": 3,
-              "name": "DEV SETUP",
-              "duration": 2,
-              "dependencies": [
-                  1
-              ],
-              "startDate": "11-18-2024",
-              "endDate": "11-19-2024"
+              "startDate": "11-19-2025",
+              "endDate": "11-22-2025"
           }
       ],
-      "startDate": "11-14-2024",
-      "endDate": "11-19-2024"
+      "startDate": "11-17-2025",
+      "endDate": "11-22-2025"
   }
   ```
 
-- ## Get a project by id
+## 4. Update a project
+
+#### PATCH *localhost:8080/api/projects/{projectId}*
+
+__Request Body__
+  ```
+  {
+      "startDate": "11-12-2024",
+      "name": "Project One v2.0"
+  }
+  ```
+__Response Body__
+  ```
+  {
+      "id": 1,
+      "name": "Project One v2.0",
+      "tasks": [
+          {
+              "id": 1,
+              "name": "Requirements Gathering",
+              "duration": 2,
+              "dependencies": [],
+              "startDate": "11-12-2024",
+              "endDate": "11-13-2024"
+          },
+          {
+              "id": 2,
+              "name": "Requirements Analysis",
+              "duration": 4,
+              "dependencies": [
+                  1
+              ],
+              "startDate": "11-14-2024",
+              "endDate": "11-17-2024"
+          }
+      ],
+      "startDate": "11-12-2024",
+      "endDate": "11-17-2024"
+  }
+  ```
+
+## 5. Get a project by id
 
 #### GET *localhost:8080/api/projects/{id}*
 
@@ -184,10 +212,10 @@ __Response Body__
           {
               "id": 1,
               "name": "Requirements Gathering",
-              "duration": 4,
+              "duration": 2,
               "dependencies": [],
-              "startDate": "11-14-2024",
-              "endDate": "11-17-2024"
+              "startDate": "11-17-2025",
+              "endDate": "11-18-2025"
           },
           {
               "id": 2,
@@ -196,17 +224,17 @@ __Response Body__
               "dependencies": [
                   1
               ],
-              "startDate": "11-18-2024",
-              "endDate": "11-21-2024"
+              "startDate": "11-19-2025",
+              "endDate": "11-22-2025"
           }
       ],
-      "startDate": "11-14-2024",
-      "endDate": "11-21-2024"
+      "startDate": "11-17-2025",
+      "endDate": "11-22-2025"
   }
   ```
 
 
-- ## Get all projects
+## 6. Get all projects
 
 #### GET *localhost:8080/api/projects*
 
@@ -220,10 +248,10 @@ __Response Body__
               {
                   "id": 1,
                   "name": "Requirements Gathering",
-                  "duration": 4,
+                  "duration": 2,
                   "dependencies": [],
-                  "startDate": "11-14-2024",
-                  "endDate": "11-17-2024"
+                  "startDate": "11-17-2025",
+                  "endDate": "11-18-2025"
               },
               {
                   "id": 2,
@@ -232,33 +260,31 @@ __Response Body__
                   "dependencies": [
                       1
                   ],
-                  "startDate": "11-18-2024",
-                  "endDate": "11-21-2024"
+                  "startDate": "11-19-2025",
+                  "endDate": "11-22-2025"
               }
           ],
-          "startDate": "11-14-2024",
-          "endDate": "11-21-2024"
+          "startDate": "11-17-2025",
+          "endDate": "11-22-2025"
       },
       {
           "id": 2,
           "name": "Project Two",
-          "tasks": [
-              {
-                  "id": 3,
-                  "name": "Dev Environment Setup",
-                  "duration": 4,
-                  "dependencies": [],
-                  "startDate": "11-14-2024",
-                  "endDate": "11-17-2024"
-              }
-          ],
-          "startDate": "11-14-2024",
-          "endDate": "11-17-2024"
+          "tasks": [],
+          "startDate": "11-17-2025",
+          "endDate": "11-17-2025"
+      },
+      {
+          "id": 3,
+          "name": "Project Three",
+          "tasks": [],
+          "startDate": "11-25-2025",
+          "endDate": "11-25-2025"
       }
   ]
   ```
 
-- ## Delete a project by id
+## 7. Delete a project by id
 
 #### DELETE *localhost:8080/api/projects/{id}*
 
@@ -268,9 +294,19 @@ __Response Body__
   deleted successfully
   ```
 
-- ## Delete all tasks project by projectId
+## 8. Delete all tasks project by projectId
 
 #### DELETE *localhost:8080/api/projects/{id}/tasks*
+
+
+__Response Body__
+  ```
+  deleted successfully
+  ```
+
+## 9. Delete a task inside a project
+
+#### DELETE *localhost:8080/api/projects/{projectId}/tasks/{taskId}*
 
 
 __Response Body__
