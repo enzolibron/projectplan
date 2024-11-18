@@ -82,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProjectById(Long id) {
         Optional<Project> project = projectRepository.findById(id);
 
-        if(project.isEmpty()) {
+        if (project.isEmpty()) {
             throw new ResourceNotFoundException("project with id: " + id + " not found");
         }
 
@@ -102,7 +102,7 @@ public class ProjectServiceImpl implements ProjectService {
             //check if new task dependencies exist
             HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
             if (!projectTasksIdSet.containsAll(request.getDependencies())) {
-                throw new InvalidTaskRequestException("Invalid task dependencies");
+                throw new InvalidTaskRequestException("Invalid task dependencies. Dependencies in request.dependencies might not exist");
             }
 
             Task newTask = new Task();

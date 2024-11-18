@@ -140,11 +140,11 @@ class ProjectServiceTest {
     }
 
     @Test
-    void givenInvalidTaskWithInvalidDependency_whenCreateTaskInsideProject_throwInvalidTaskRequestException() {
+    void givenRequestWithInvalidDependency_whenCreateTaskInsideProject_throwInvalidTaskRequestException() {
         NewTaskRequest request = new NewTaskRequest();
         request.setName("Test Task Two");
         request.setDuration(1);
-        request.getDependencies().add(2L);
+        request.getDependencies().add(3L);
 
         project.getTasks().add(task);
 
@@ -154,7 +154,7 @@ class ProjectServiceTest {
             projectService.createTaskInsideProject(request, 1L);
         });
 
-        assertEquals(exception.getMessage(), "Invalid task dependencies");
+        assertEquals(exception.getMessage(), "Invalid task dependencies. Dependencies in request.dependencies might not exist");
 
     }
 
