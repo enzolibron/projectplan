@@ -102,7 +102,7 @@ public class ProjectServiceImpl implements ProjectService {
             //check if new task dependencies exist
             HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
             if (!projectTasksIdSet.containsAll(request.getDependencies())) {
-                throw new InvalidTaskRequestException("Invalid task dependencies. Dependencies in request.dependencies might not exist");
+                throw new InvalidTaskRequestException("Invalid task dependencies. Dependencies in request.dependencies might not exist inside the project");
             }
 
             Task newTask = new Task();
@@ -185,11 +185,20 @@ public class ProjectServiceImpl implements ProjectService {
             //get task from project tasks that will be updated
             Optional<Task> taskToBeUpdated = project.get().getTasks().stream().filter(task -> task.getId().equals(taskId)).findFirst();
 
+            //get all task inside project
+            List<Task> projectTasks = project.get().getTasks();
+
             //if task not existing, catch error
             if (taskToBeUpdated.isPresent()) {
 
                 //update task dependencies
                 if (request.getDependencies() != null) {
+                    //check if new task dependencies exist inside the project
+                    HashSet<Long> projectTasksIdSet = new HashSet<>(projectTasks.stream().map(Task::getId).toList());
+                    if (!projectTasksIdSet.containsAll(request.getDependencies())) {
+                        throw new InvalidTaskRequestException("Invalid task dependencies. Dependencies in request.dependencies might not exist inside the project");
+                    }
+
                     //check if taskToBeUpdated is in the dependency list
                     if (request.getDependencies().contains(taskId)) {
                         throw new InvalidTaskRequestException("Invalid task dependencies");
