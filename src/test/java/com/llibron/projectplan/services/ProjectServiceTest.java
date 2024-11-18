@@ -3,11 +3,12 @@ package com.llibron.projectplan.services;
 import com.llibron.projectplan.dtos.entity.ProjectEntityDto;
 import com.llibron.projectplan.dtos.entity.TaskEntityDto;
 import com.llibron.projectplan.dtos.requests.NewTaskRequest;
+import com.llibron.projectplan.exceptions.custom.InvalidTaskRequestException;
+import com.llibron.projectplan.exceptions.custom.ResourceNotFoundException;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.models.Task;
 import com.llibron.projectplan.repositories.ProjectRepository;
 import com.llibron.projectplan.repositories.TaskRepository;
-import com.llibron.projectplan.utilities.mapper.TaskMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,12 +18,10 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -69,7 +68,7 @@ class ProjectServiceTest {
         task2.setName("Test Task Two");
         task2.setId(2L);
         task2.setDuration(1);
-        task2.setDependencies(new ArrayList<>(List.of(1l)));
+        task2.setDependencies(new ArrayList<>(List.of(1L)));
 
     }
 
@@ -97,6 +96,9 @@ class ProjectServiceTest {
 
         assertEquals(request.getName(), createdProject.getTasks().get(0).getName());
         assertEquals(request.getDuration(), createdProject.getTasks().get(0).getDuration());
+
+        LocalDate estimatedEndDate = createdProject.getTasks().get(0).getEndDate();
+        assertEquals(createdProject.getEndDate(), estimatedEndDate);
 
         verify(projectRepository, times(1)).findById(1L);
         verify(projectRepository, times(1)).save(project);
@@ -129,6 +131,44 @@ class ProjectServiceTest {
         verify(projectRepository, times(1)).findById(1L);
         verify(projectRepository, times(1)).save(project);
         verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
+    void givenInvalidTaskWithInvalidDependency_whenCreateTaskInsideProject_throwInvalidTaskRequestException() {
+        NewTaskRequest request = new NewTaskRequest();
+        request.setName("Test Task Two");
+        request.setDuration(1);
+        request.getDependencies().add(2L);
+
+        project.getTasks().add(task);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        InvalidTaskRequestException exception = assertThrows(InvalidTaskRequestException.class, () -> {
+            projectService.createTaskInsideProject(request, 1L);
+        });
+
+        assertEquals(exception.getMessage(), "Invalid task dependencies");
+
+    }
+
+    @Test()
+    void givenInvalidTaskWithInvalidProject_whenCreateTaskInsideProject_throwResourceNotFoundException() {
+        NewTaskRequest request = new NewTaskRequest();
+        request.setName("Test Task Two");
+        request.setDuration(1);
+        request.getDependencies().add(2L);
+
+        project.getTasks().add(task);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            projectService.createTaskInsideProject(request, 1L);
+        });
+
+        assertEquals(exception.getMessage(), "project with id: 1 not found");
+
     }
 
 
