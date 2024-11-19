@@ -11,10 +11,31 @@ Calculates project task schedules.
 - run 'mvn spring-boot:run'
     - app will run on localhost:8080
 
+## Run on Docker
+- docker build -t projectplan-app .
+- docker run -p 8080:8080 projectplan-app
+
+## Database
+- h2 Database
+- console: localhost:8080/h2-console
+- url: jdbc:h2:file:./temp/data/testdb
+- username: sa
+- password: password
+
+
 ### Prerequisites
 
 - Java 17
 - Maven
+
+## Database
+
+- h2 Database
+- url: jdbc:h2:file:./temp/data/testdb
+- username: sa
+- password: password
+- console: localhost:8080/h2-console
+
 
 # Endpoints
 
