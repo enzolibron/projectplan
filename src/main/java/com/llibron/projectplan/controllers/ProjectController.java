@@ -9,7 +9,6 @@ import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.services.ProjectService;
 import com.llibron.projectplan.utilities.mapper.ProjectMapper;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +20,11 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    @Autowired
-    ProjectMapper projectMapper;
-
+    private final ProjectMapper projectMapper;
     private final ProjectService projectService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectMapper projectMapper, ProjectService projectService) {
+        this.projectMapper = projectMapper;
         this.projectService = projectService;
     }
 
