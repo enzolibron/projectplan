@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -42,12 +43,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((authz) -> authz.
-                requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/authenticate", "/refresh-token").permitAll()
-                .requestMatchers("/api/users").permitAll()
-                .anyRequest().authenticated())
-                .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable()).
-                csrf(csrf -> csrf.disable()).httpBasic(withDefaults())
+                        requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/authenticate", "/refresh-token").permitAll()
+                        .requestMatchers("/api/users").permitAll()
+                        .anyRequest().authenticated())
+                .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable())
+                .csrf(csrf -> csrf.disable()).httpBasic(withDefaults())
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

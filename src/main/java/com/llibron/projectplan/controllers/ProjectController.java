@@ -11,6 +11,9 @@ import com.llibron.projectplan.utilities.mapper.ProjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -30,7 +33,10 @@ public class ProjectController {
 
     @GetMapping
     public List<ProjectEntityDto> getAllProjects() {
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            System.out.println(userDetails.getUsername());
+        }
         return projectService.findAll();
 
     }
