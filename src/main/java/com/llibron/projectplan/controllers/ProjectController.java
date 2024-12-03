@@ -7,9 +7,9 @@ import com.llibron.projectplan.dtos.requests.UpdateProjectRequest;
 import com.llibron.projectplan.dtos.requests.UpdateTaskRequest;
 import com.llibron.projectplan.models.Project;
 import com.llibron.projectplan.services.ProjectService;
+import com.llibron.projectplan.services.logging.RedisLoggingService;
 import com.llibron.projectplan.utilities.mapper.ProjectMapper;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,24 +21,36 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    @Autowired
-    ProjectMapper projectMapper;
-
     private final ProjectService projectService;
+    private final ProjectMapper projectMapper;
+    private final RedisLoggingService redisLoggingService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, ProjectMapper projectMapper, RedisLoggingService redisLoggingService) {
         this.projectService = projectService;
+        this.projectMapper = projectMapper;
+        this.redisLoggingService = redisLoggingService;
     }
 
     @GetMapping
-    public List<ProjectEntityDto> getAllProjects() {
+    public ResponseEntity<List<ProjectEntityDto>> getAllProjects() {
 
-        return projectService.findAll();
+
+        try{
+            String requestLogId = redisLoggingService.logRequest("GET", "/api/projects", null);
+            List<ProjectEntityDto> projects = projectService.findAll();
+            ResponseEntity<List<ProjectEntityDto>> response = ResponseEntity.ok(projects);
+            redisLoggingService.logResponse(requestLogId, response.getStatusCode().toString() , response.getBody().toString());
+            return response;
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
 
     }
 
+
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getProjectByid(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getProjectById(@PathVariable("id") Long id) {
 
         ProjectEntityDto project = projectService.findById(id);
 
@@ -108,4 +120,5 @@ public class ProjectController {
         return ResponseEntity.ok("deleted successfully");
 
     }
+
 }

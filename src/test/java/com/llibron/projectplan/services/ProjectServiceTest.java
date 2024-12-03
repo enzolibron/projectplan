@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     @Mock
     private ProjectRepository projectRepository;
